@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            color: #00d9ff;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .subtitle {
+            color: #888;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-top: 15px;
+        }
+
+        .add-form {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+        }
+
+        input[type="text"]::placeholder {
+            color: #666;
+        }
+
+        button {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #00d9ff 0%, #00a8cc 100%);
+            border: none;
+            border-radius: 12px;
+            color: #1a1a2e;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .tasks-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tasks-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tasks-header h2 {
+            font-weight: 400;
+            font-size: 1.2em;
+        }
+
+        .task-count {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            margin-right: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .task-checkbox:hover {
+            border-color: #00d9ff;
+        }
+
+        .task-item.completed .task-checkbox {
+            background: #00d9ff;
+            border-color: #00d9ff;
+        }
+
+        .task-checkbox::after {
+            content: '✓';
+            color: transparent;
+            font-size: 14px;
+        }
+
+        .task-item.completed .task-checkbox::after {
+            color: #1a1a2e;
+        }
+
+        .task-title {
+            flex: 1;
+            font-size: 1em;
+        }
+
+        .task-delete {
+            color: #666;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 1.2em;
+        }
+
+        .task-delete:hover {
+            background: rgba(255, 82, 82, 0.2);
+            color: #ff5252;
+        }
+
+        .empty-state {
+            padding: 60px 24px;
+            text-align: center;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: 16px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #555;
+            font-size: 0.85em;
+        }
+
+        footer a {
+            color: #00d9ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🐳</div>
+            <h1>Task Manager</h1>
+            <p class="subtitle">A Docker Compose Demo Application</p>
+            <span class="badge">Flask + Redis</span>
+        </header>
+
+        <form class="add-form" action="/add" method="POST">
+            <div class="input-group">
+                <input type="text" name="title" placeholder="What needs to be done?" autocomplete="off" required>
+                <button type="submit">Add Task</button>
+            </div>
+        </form>
+
+        <div class="tasks-container">
+            <div class="tasks-header">
+                <h2>📋 Tasks</h2>
+                <span class="task-count">{{ tasks|length }} items</span>
+            </div>
+            
+            {% if tasks %}
+            <ul class="task-list">
+                {% for task in tasks %}
+                <li class="task-item {% if task.completed %}completed{% endif %}">
+                    <a href="/toggle/{{ task.id }}" class="task-checkbox"></a>
+                    <span class="task-title">{{ task.title }}</span>
+                    <a href="/delete/{{ task.id }}" class="task-delete">🗑️</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">📝</div>
+                <p>No tasks yet. Add one above!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <footer>
+            <p>Built with ❤️ using Docker Compose</p>
+            <p><a href="/health">Health Check</a> | <a href="/api/tasks">API</a></p>
+        </footer>
+    </div>
+</body>
+</html>
+
